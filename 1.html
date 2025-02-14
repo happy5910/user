@@ -1,0 +1,82 @@
+<html>
+<head>
+    <meta charset="UTF - 8">
+    <meta name="viewport" content="width=device - width, initial - scale = 1.0">
+    <title>用户信息查询</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .container {
+            width: 60%;
+            margin: 10% auto 0;
+            background-color: #f0f0f0;
+            padding: 2% 5%;
+            border-radius: 10px
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+            ul li {
+                line-height: 2.3
+            }
+
+        a {
+            color: #20a53a
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+</head>
+
+<body>
+    <body>
+    <form id="queryForm">
+        <label for="username">用户名:</label>
+        <input type="text" id="username" required>
+        <label for="email">邮箱:</label>
+        <input type="email" id="email" required>
+        <input type="submit" value="查询密码">
+    </form>
+    <div id="result"></div>
+    <script src="script.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const resultDiv = document.getElementById('result');
+            const queryForm = document.getElementById('queryForm');
+            let users = [];
+
+            // 读取CSV文件
+            fetch('users.csv')
+              .then(response => response.text())
+              .then(csv => {
+                    const parsed = Papa.parse(csv, { header: true });
+                    users = parsed.data;
+                })
+              .catch(error => {
+                    resultDiv.innerHTML = `<p>读取文件时出错: ${error.message}</p>`;
+                });
+
+            queryForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const username = document.getElementById('username').value;
+                const email = document.getElementById('email').value;
+                let found = false;
+
+                for (let i = 0; i < users.length; i++) {
+                    if (users[i].username === username && users[i].email === email) {
+                        resultDiv.innerHTML = `<p>您的密码是: ${users[i].password}</p>`;
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    resultDiv.innerHTML = '<p>未找到匹配的用户信息，请检查输入。</p>';
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
